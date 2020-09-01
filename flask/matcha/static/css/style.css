@@ -1,0 +1,16 @@
+.navbar {
+  margin-bottom: 25px;
+}
+
+body {
+  background-image: url(Love3.jpg);
+}
+
+.card-text {
+  color: #272727;
+  font-size: 0.9em;
+}
+
+.card-img-top {
+  padding: 10px 10px
+}

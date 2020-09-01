@@ -1,0 +1,30 @@
+{% extends 'base.html' %} {% block content %}
+<div class="content-sections">
+  <legend class="form-goup border-bottom" style="padding-left: 4%;">
+    People you can chat with
+  </legend>
+  {% for user in users %} {% if logged_in != user['username'] and
+  user['username'] in current_user['matched'] %}
+  <article class="media content-section">
+    <img
+      class="article-img rounded"
+      src="{{ url_for('static', filename='profile_pics/' + user['image_name']) }}"
+      alt="Profile Pic"
+    />
+    <div class="media-body">
+      <div class="article-metadata border-bottom">
+        <a class="mr-2" href="#">{{ user['username'] }}</a>
+        <small class="text-muted">{{ user['email'] }}</small>
+        <!-- The chat system -->
+        <a
+          href="{{ url_for('chat.chat_room', room=user['rooms'][logged_in]) }}"
+          class="btn btn-outline-info btn-sm m-1"
+          >Chat</a
+        >
+      </div>
+      <p class="article-content">{{ user['gender'] }}</p>
+    </div>
+  </article>
+  {% endif %} {% endfor %}
+</div>
+{% endblock content %}

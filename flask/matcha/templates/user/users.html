@@ -1,0 +1,274 @@
+{% extends 'base.html' %} {% block content %}
+<div class="section">
+  <div class="btn-group">
+    <button
+      type="button"
+      class="btn dropdown-toggle btn-sm"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+      id="fame"
+    >
+      Fame
+    </button>
+    <div class="dropdown-menu">
+      <a
+        class="dropdown-item"
+        href="{{ url_for('main.sort_fame', value='Sort_d') }}"
+        >sort by descending</a
+      >
+      <a
+        class="dropdown-item"
+        href="{{ url_for('main.sort_fame', value='Sort_a') }}"
+        >sort by ascending</a
+      >
+    </div>
+  </div>
+  <div class="btn-group">
+    <button
+      type="button"
+      class="btn dropdown-toggle btn-sm"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+      id="fame"
+    >
+      Age
+    </button>
+    <div class="dropdown-menu">
+      <a
+        class="dropdown-item"
+        href="{{ url_for('main.sort_age', value='Sort_d') }}"
+        >sort by descending</a
+      >
+      <a
+        class="dropdown-item"
+        href="{{ url_for('main.sort_age', value='Sort_a') }}"
+        >sort by ascending</a
+      >
+    </div>
+  </div>
+
+  <div class="btn-group">
+  </div>
+
+  <div class="btn-group"></div>
+</div>
+
+<div class="content-sections">
+  {% for user in users %} {% if logged_in != user['username'] %}
+  <h3>
+    <a class="mr-2" href="{{ url_for('profile.view_profile', user_id=user['_id'])}}">{{ user['username'] }}</a>
+  </h3>
+  <article class="media content-section">
+    <img
+      class="article-img rounded"
+      src="{{ url_for('static', filename='profile_pics/' + user['image_name']) }}"
+      alt="Profile Pic"
+    />
+    <div class="media-body">
+      <div class="article-metadata border-bottom">
+        <small class="text-muted"
+          >Fame: {{user['fame-rating']}}% Age: {{ user['age'] }} Location: {{
+          user['location'][2]}}</small
+        >
+        {% if logged_in in user['liked'] %}
+        <div>
+          {% if user['username'] in current_user['liked'] %}
+          <a
+            href="{{ url_for('chat.chat_room', room=user['rooms'][logged_in]) }}"
+            class="btn btn btn-outline-info"
+            >Chat</a
+          >
+          {% else %}
+          <a href="#" class="pending btn"
+            >Pending</a
+          >
+          {% endif %}
+          <button
+            type="button"
+            class="unlike btn"
+            value="{{ user['username'] }}"
+          >
+            unlike
+          </button>
+        </div>
+        {% else %}
+        <div>
+          {% if user['username'] in current_user['liked'] %}
+          <button
+            type="button"
+            value="{{ user['username'] }}"
+            class="like-back btn"
+          >
+            Like Back
+          </button>
+          {% else%}
+          <button
+            type="button"
+            value='{{ user["username"] }}'
+            class="like btn"
+          >
+            Like
+          </button>
+          {% endif %}
+        </div>
+        {% endif %}
+        <a
+          href="{{ url_for('main.block_user', b_id=user['_id']) }}"
+          class="btn"
+          >Block</a
+        >
+      </div>
+    </div>
+  </article>
+  {% endif %} {% endfor %}
+</div>
+{% endblock content %} {% block js %}
+<script>
+  socket = io("http://localhost:5000");
+  var_name = $("#username").text();
+
+  $(".like").each(function () {
+    $(this).on("click", function (e) {
+      socket.emit("like", {
+        to: $(this).val(),
+      });
+      $(this).removeClass("like");
+      $(this).addClass("disabled");
+      $(this).addClass("pending");
+      $(this).text("pending");
+      $(this).unbind("click", arguments.callee);
+    });
+  });
+
+  $(".like-back").each(function () {
+    $(this).on("click", function (e) {
+      socket.emit("like-back", { to: $(this).val() });
+      $(this).replaceWith(
+        "<a href='#' class='btn btn-outline-info btn-sm sm-1 disabled'>Chat</a>"
+      );
+    });
+  });
+
+  $(".unlike").each(function () {
+    $(this).on("click", function (e) {
+      socket.emit("Unlike", { to: $(this).val() });
+      window.location.reload();
+    });
+  });
+
+  socket.on("like", function (data) {
+    alert(data["from"]);
+
+    $(".like").each(function () {
+      if ($(this).val() == data["from"]) {
+        window.location.reload();
+      }
+    });
+  });
+
+  socket.on("matched", function (data) {
+    $(".pending").each(function () {
+      if ($(this).val() == data["from"]) {
+        $(this).replaceWith(
+          "<a href='#' class='btn btn-outline-info btn-sm sm-1 disabled'>Chat</a>"
+        );
+      }
+    });
+  });
+
+  socket.on("Unlike", function (data) {
+    $(".like-back").each(function () {
+      if ($(this).val() == data["from"]) {
+        window.location.reload();
+      }
+    });
+  });
+
+  socket.on("notif_chat", function (data) {
+    $("notification").append("<p>" + data["from"] + " sent you a message</p>");
+    $("#badge").text("new");
+  });
+
+  socket.on("notif_view", function (data) {
+    $("#notification").append(
+      "<p>" + data["from"] + " viewed your profile</p>"
+    );
+    $("#badge").text("new");
+  });
+
+  $("#inbox").on("click", function () {
+    socket.emit("read", { user: $("#username").text() });
+    $("#badge").text("");
+  });
+</script>
+<script>
+  let traveling = "";
+  let animals = "";
+  let technology = "";
+  let skyDiving = "";
+  let movies = "";
+  let music = "";
+  let cooking = "";
+  let sports = "";
+  let gaming = "";
+
+  const interests = [];
+
+  document.getElementById('traveling').addEventListener("click", function (e) {
+    traveling = e.target.value;
+    interests.push(traveling);
+  });
+  document.getElementById('animals').addEventListener("click", function (e) {
+    animals = e.target.value;
+    interests.push(animals);
+  });
+  document.getElementById('technology').addEventListener("click", function (e) {
+    technology = e.target.value;
+    interests.push(technology);
+  });
+  document.getElementById('sky-diving').addEventListener("click", function (e) {
+    skyDiving = e.target.value;
+    interests.push(skyDiving);
+  });
+  document.getElementById('movies').addEventListener("click", function (e) {
+    movies = e.target.value;
+    interests.push(movies);
+  });
+  document.getElementById('music').addEventListener("click", function (e) {
+    music = e.target.value;
+    interests.push(music);
+  });
+  document.getElementById('cooking').addEventListener("click", function (e) {
+    cooking = e.target.value;
+    interests.push(cooking);
+  });
+  document.getElementById('sports').addEventListener("click", function (e) {
+    sports = e.target.value;
+    interests.push(sports);
+  });
+  document.getElementById('gaming').addEventListener("click", function (e) {
+    gaming = e.target.value;
+    interests.push(gaming);
+  });
+
+  function advance_search() {
+    const age = document.getElementById('age').value;
+    const fame = document.getElementById('fame1').value;
+    const location = document.getElementById('location').value;
+    fetch("http://localhost:5000/users/advance_search/search",
+      {
+        method: 'POST',
+        mode: "cors",
+        cache: "no-cache",
+        credentials: "same-origin",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ "Age": age, "Fame": fame, "Location": location, "Interests": interests })
+      }
+    );
+  }
+</script>
+{% endblock js %}

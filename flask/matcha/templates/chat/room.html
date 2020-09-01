@@ -1,0 +1,86 @@
+{% extends 'base.html' %} {% block content %}
+<p id="room" hidden>{{ room }}</p>
+  <div class="card bg-sohbet border-0 m-0 p-0" style="height: 70vh;">
+    <div id="sohbet" class="card border-0 m-0 p-0 position-relative bg-transparent"
+      style="overflow-y: auto; height: 100vh;">
+  {% for chat in history %} {% if chat[0] == logged_in %}
+    <div class="balon1 p-2 m-0 position-relative">
+        <a class="float-right"> {{ chat[1] }}
+        </a>
+    </div>
+  {% else %}
+  <div class="balon2 p-2 m-0 position-relative">
+    <a class="float-left"> {{ chat[1] }}</a>
+  </div>
+  {% endif %} {% endfor %}
+    </div>
+  </div>
+<div class="input-group mb-3">
+  <input
+    type="text"
+    class="form-control form-control-sm"
+    placeholder="Type your message here..."
+    aria-label="Send"
+    aria-describedby="send_message"
+    id="message"
+  />
+  <div class="input-group-append">
+    <button
+      class="btn btn-outline-primary btn-sm"
+      type="button"
+      id="send"
+      value="{{ logged_in }}"
+    >
+      Send
+    </button>
+  </div>
+</div>
+{% endblock content %} {% block js %}
+<script>
+  socket = io("http://localhost:5000");
+  room = $("#room").text();
+
+  socket.on("connect", function () {
+    socket.emit("join", room);
+  });
+  socket.on("disconnect", function () {
+    socket.emit("leave", room);
+  });
+
+  $("#send").on("click", function () {
+    socket.emit("send", {
+      from: $(this).val(),
+      message: $("#message").val(),
+      room: room,
+    });
+    $(".messages").append(
+      '<p class="alert-info">' + $("#message").val() + "</p>"
+    );
+    $("#message").val("");
+    location.reload();
+  });
+
+  socket.on("recieve", function (data) {
+    $(".messages").append(
+      '<p class="alert-primary">' + data["message"] + "</p>"
+    );
+  });
+
+  socket.on("notif_chat", function (data) {
+      $("notification").append("<p>" + data["from"] + " sent you a message</p>");
+      $("#badge").text("new");
+    });
+
+    socket.on("notif_view", function (data) {
+      $("#notification").append(
+        "<p>" + data["from"] + " viewed your profile</p>"
+      );
+      $("#badge").text("new");
+    });
+
+    $("#inbox").on("click", function () {
+      socket.emit("read", { user: $("#username").text() });
+      $("#badge").text("");
+    });
+</script>
+{% endblock js %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+  <form action="" method="POST" class="needs-validation" novalidate>
+    <fieldset class="form-group">
+      <legend class="form-goup border-bottom">
+        Sign up
+      </legend>
+      <div class="form-group">
+        <label class="form-control-label" for="UserName">User Name</label>
+        <input
+          type="text"
+          id="UserName"
+          class="form-control form-control-lg"
+          name="username"
+          required
+          value="{{ user_info['username'] }}"
+          autofocus
+        />
+        <div class="valid-feedback">
+          looks good!
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-control-label" for="firstName">First Name</label>
+        <input
+          type="text"
+          id="firstName"
+          class="form-control form-control-lg"
+          name="firstname"
+          required
+          value="{{ user_info['firstname'] }}"
+        />
+        <div class="valid-feedback">
+          looks good!
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-control-label">Last Name</label>
+        <input
+          type="text"
+          id="lastName"
+          class="form-control form-control-lg"
+          name="lastname"
+          required
+          value="{{ user_info['lastname'] }}"
+        />
+        <div class="valid-feedback">
+          looks good!
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-control-label" for="age">Enter Your Age</label>
+        <input
+          type="text"
+          id="age"
+          class="form-control form-control-lg"
+          name="age"
+          required
+          value="{{ user_info['age'] }}"
+        />
+        <div class="valid-feedback">
+          looks good!
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-control-label">Email</label>
+        <input
+          type="email"
+          id="email"
+          class="form-control form-control-lg"
+          name="email"
+          required
+          value="{{ user_info['email'] }}"
+        />
+        <div class="invalid-feedback">
+          Please enter a valid email address
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-control-label">Password</label>
+        <input
+          type="password"
+          id="password"
+          class="form-control form-control-lg"
+          name="password"
+          required
+        />
+        <div class="invalid-feedback">
+          Please enter a password
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-control-label">Password confirm</label>
+        <input
+          type="password"
+          id="password_confirm"
+          class="form-control form-control-lg"
+          name="password_confirm"
+          required
+        />
+        <div class="invalid-feedback">
+          Please renter you password
+        </div>
+      </div>
+    </fieldset>
+    <div class="form-group">
+      <input
+        type="submit"
+        value="register"
+        name="submit"
+        class="btn btn-outline-info btn-md"
+      />
+    </div>
+  </form>
+</div>
+{% endblock content %} {% block js %}
+<script>
+  (function () {
+    "use strict";
+    window.addEventListener(
+      "load",
+      function () {
+        let forms = document.getElementsByClassName("needs-validation");
+        let validation = Array.prototype.filter.call(forms, function (form) {
+          form.addEventListener(
+            "submit",
+            function (event) {
+              if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false
+          );
+        });
+      },
+      false
+    );
+  })();
+</script>
+{% endblock js %}

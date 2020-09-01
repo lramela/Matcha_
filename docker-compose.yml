@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    expose: 
+      - 27017
+    volumes:
+      - "~/container_volumes/mongo/data/db:/data/db"
+      - "~/container_logs/mongo/log:/var/log/mongodb"
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    depends_on:
+      - flask
+    ports:
+      - "80:80"
+    volumes:
+      - "~/container_logs/nginx/log:/var/log/nginx"
+
+  flask:
+    image: martian1431/matcha_flask:0.0.1
+    container_name: flask
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+    volumes:
+      - "~/container_logs/flask/log:/var/log/app"
+    links:
+      - mongo:mongo

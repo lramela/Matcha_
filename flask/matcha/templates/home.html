@@ -1,0 +1,83 @@
+{% extends 'base.html' %} {% block content %}
+<div class="bg-image"></div>
+
+<div class="bg-text">
+  <h1 style="font-size: 150px solid"><strong>Welcome to Matcha &#128525</strong></h1>
+  <p style="font-style: italic;">"Sometimes we meet someone and feel like we have known them all our lives".</p>
+</div>
+  <br />
+</div>
+<div class="content-sections">
+  {% for post in posts %}
+  <article class="media content-section">
+    <img
+      class="article-img rounded"
+      src="{{ url_for('static', filename='profile_pics/' + post['author']['image_name']) }}"
+      alt="Profile Pic"
+    />
+    <div class="media-body">
+      <div class="article-metadata border-bottom">
+        <a
+          class="mr-2"
+          href="{{ url_for('profile.view_profile', user_id=post['author']['_id'])}}"
+          >{{ post['author']['username'] }}</a
+        >
+        <small class="text-muted"
+          >{{ post['date_posted'].strftime("%Y-%m-%d") }}</small
+        >
+      </div>
+      <h2>
+        <a
+          class="article-title"
+          href="{{ url_for('posts.post', post_id=post['_id'])}}"
+          >{{ post['title'] }}</a
+        >
+      </h2>
+      <p class="article-content">{{ post['content'] }}</p>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endblock content %} {% block js %}
+<script>
+  socket = io.connect("http://localhost:5000");
+  user_name = $("#username").text();
+
+  socket.on("flirt", function (data) {
+    $("notification").append(
+      "<p>" + data["from"] + " has flirted with you</p>"
+    );
+    $("#badge").text("new");
+  });
+
+  socket.on("matched", function () {
+    alert(data["from"] + " and you can now chat");
+    $("notification").append(
+      "<p> you and " + data["from"] + " can now chat.</p>"
+    );
+    $("#badge").text("new");
+  });
+
+  socket.on("notif_chat", function (data) {
+    $("notification").append("<p>" + data["from"] + " sent you a message</p>");
+    $("#badge").text("new");
+  });
+
+  socket.on("notif_view", function (data) {
+    $("#notification").append(
+      "<p>" + data["from"] + " viewed your profile</p>"
+    );
+    $("#badge").text("new");
+  });
+
+  socket.on("Unlike", function (data) {
+    alert(data["from"] + " has unliked, so sad");
+    window.location.reload();
+  });
+
+  $("#inbox").on("click", function () {
+    socket.emit("read", { user: $("#username").text() });
+    $("#badge").text("");
+  });
+</script>
+{% endblock js %}
